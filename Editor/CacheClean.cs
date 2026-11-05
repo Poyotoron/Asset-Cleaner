@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// ビルドキャッシュ掃除の中核。
@@ -19,16 +19,41 @@ namespace Maaaaa.Akn.Editor
     ///   したがって「予約 → 終了時に外部ヘルパープロセスを detached 起動 → ヘルパーが PID 終了を待って削除」
     ///   という方式を採る。ヘルパーは PowerShell スクリプト（Windows 専用）。
     ///
-    /// 予約・完了フラグは削除対象外かつ再インポートを誘発しない領域（ProjectRoot/.akn/）に置く。
+    /// 予約・完了フラグは削除対象外かつ再インポートを誘発しない領域（ProjectRoot/.asset-cleaner/）に置く。
     /// </summary>
     internal static class CacheClean
     {
-        // ---- .akn/ 配下のフラグ / ログ（Library・Assets の外に置く）----
-        public const string AknDirName = ".akn";
+        // ---- .asset-cleaner/ 配下のフラグ / ログ（Library・Assets の外に置く）----
+        public const string AssetCleanerDirName = ".asset-cleaner";
+        internal const string LegacyDirName = ".akn";
+
+        internal static void MigrateLegacyDir()
+        {
+            if (AssetCleanerLegacy.IsInstalled) return;
+            var legacyPath = Path.Combine(AssetCleanerUtil.ProjectRoot, LegacyDirName);
+            if (!Directory.Exists(legacyPath)) return;
+            if (Directory.Exists(AssetCleanerDir))
+            {
+                const string warnedKey = "net.maaaaa.asset-cleaner.legacyDirWarned";
+                if (!SessionState.GetBool(warnedKey, false))
+                {
+                    SessionState.SetBool(warnedKey, true);
+                    Debug.LogWarning($"[Poyo's Asset Cleaner] 以前の版の作業フォルダ .akn が残っています。中身を確かめてから手動で削除してください: {legacyPath}");
+                }
+                return;
+            }
+            try
+            {
+                Directory.Move(legacyPath, AssetCleanerDir);
+                Debug.Log("[Poyo's Asset Cleaner] キャッシュ掃除の作業フォルダを .akn から .asset-cleaner に移しました。");
+            }
+            catch (IOException ex) { Debug.LogException(ex); }
+            catch (UnauthorizedAccessException ex) { Debug.LogException(ex); }
+        }
         public const string PendingFileName = "pending-clean.json";
         public const string DoneFileName = "clean-done.json";
         public const string LogFileName = "clean-log.txt";
-        public const string HelperFileName = "akn-clean-helper.ps1";
+        public const string HelperFileName = "asset-cleaner-clean-helper.ps1";
         public const string FallbackBatName = "clean-cache.bat";
 
         public const int HelperTimeoutSeconds = 120;
@@ -47,17 +72,17 @@ namespace Maaaaa.Akn.Editor
 
         // ------------------------------------------------------------ パス
 
-        public static string AknDir => AknUtil.Normalize(Path.Combine(AknUtil.ProjectRoot, AknDirName));
-        public static string PendingPath => AknUtil.Normalize(Path.Combine(AknDir, PendingFileName));
-        public static string DonePath => AknUtil.Normalize(Path.Combine(AknDir, DoneFileName));
-        public static string LogPath => AknUtil.Normalize(Path.Combine(AknDir, LogFileName));
-        public static string HelperPath => AknUtil.Normalize(Path.Combine(AknDir, HelperFileName));
+        public static string AssetCleanerDir => AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerUtil.ProjectRoot, AssetCleanerDirName));
+        public static string PendingPath => AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerDir, PendingFileName));
+        public static string DonePath => AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerDir, DoneFileName));
+        public static string LogPath => AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerDir, LogFileName));
+        public static string HelperPath => AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerDir, HelperFileName));
         public static string FallbackBatPath =>
-            AknUtil.Normalize(Path.Combine(AknUtil.ProjectRoot, FallbackBatName));
+            AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerUtil.ProjectRoot, FallbackBatName));
 
-        private static void EnsureAknDir()
+        private static void EnsureAssetCleanerDir()
         {
-            if (!Directory.Exists(AknDir)) Directory.CreateDirectory(AknDir);
+            if (!Directory.Exists(AssetCleanerDir)) Directory.CreateDirectory(AssetCleanerDir);
         }
 
         // ------------------------------------------------------------ 削除対象
@@ -76,14 +101,14 @@ namespace Maaaaa.Akn.Editor
         /// 掃除対象フォルダを列挙する（存在するもののみ）。Logs は設定に応じて。
         /// Assets/ Packages/ ProjectSettings/ は絶対に含めない。
         /// </summary>
-        public static List<CacheTarget> EnumerateTargets(AknSettings settings)
+        public static List<CacheTarget> EnumerateTargets(AssetCleanerSettings settings)
         {
-            var root = AknUtil.ProjectRoot;
+            var root = AssetCleanerUtil.ProjectRoot;
             var list = new List<CacheTarget>();
 
             void Add(string rel, bool enabled)
             {
-                var abs = AknUtil.Normalize(Path.Combine(root, rel));
+                var abs = AssetCleanerUtil.Normalize(Path.Combine(root, rel));
                 list.Add(new CacheTarget
                 {
                     RelativePath = rel,
@@ -111,11 +136,11 @@ namespace Maaaaa.Akn.Editor
                 {
                     var t = targets[i];
                     EditorUtility.DisplayProgressBar(
-                        AknStrings.ToolName,
-                        AknStrings.ProgressMeasureCache + "\n" + t.RelativePath,
+                        AssetCleanerStrings.ToolName,
+                        AssetCleanerStrings.ProgressMeasureCache + "\n" + t.RelativePath,
                         (float)i / Math.Max(1, targets.Count));
                     t.Exists = Directory.Exists(t.AbsPath);
-                    t.SizeBytes = t.Exists ? AknUtil.DirectorySize(t.AbsPath) : 0;
+                    t.SizeBytes = t.Exists ? AssetCleanerUtil.DirectorySize(t.AbsPath) : 0;
                 }
             }
             finally
@@ -127,8 +152,8 @@ namespace Maaaaa.Akn.Editor
         /// <summary>Library/ の実測サイズ。</summary>
         public static long MeasureLibrarySize()
         {
-            var abs = AknUtil.Normalize(Path.Combine(AknUtil.ProjectRoot, "Library"));
-            return AknUtil.DirectorySize(abs);
+            var abs = AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerUtil.ProjectRoot, "Library"));
+            return AssetCleanerUtil.DirectorySize(abs);
         }
 
         /// <summary>Assets/ 配下のアセット数と合計サイズ。</summary>
@@ -142,7 +167,7 @@ namespace Maaaaa.Akn.Editor
                 if (p.EndsWith(".meta")) continue;
                 if (AssetDatabase.IsValidFolder(p)) continue;
                 count++;
-                totalBytes += AknUtil.FileSize(p);
+                totalBytes += AssetCleanerUtil.FileSize(p);
             }
         }
 
@@ -171,7 +196,7 @@ namespace Maaaaa.Akn.Editor
         /// <summary>掃除を予約する。削除対象は列挙済みの enabled なフォルダ。</summary>
         public static void Reserve(List<CacheTarget> targets)
         {
-            EnsureAknDir();
+            EnsureAssetCleanerDir();
             var pending = new PendingClean
             {
                 reservedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -184,7 +209,7 @@ namespace Maaaaa.Akn.Editor
         public static void CancelReservation()
         {
             try { if (File.Exists(PendingPath)) File.Delete(PendingPath); }
-            catch (Exception ex) { Debug.LogWarning($"[{AknStrings.ToolName}] 予約解除に失敗: {ex.Message}"); }
+            catch (Exception ex) { Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] 予約を解除できませんでした: {ex.Message}"); }
         }
 
         // ------------------------------------------------------------ 完了マーカー
@@ -226,7 +251,7 @@ namespace Maaaaa.Akn.Editor
 
             try
             {
-                EnsureAknDir();
+                EnsureAssetCleanerDir();
                 WriteHelperScript(pending);
 
                 int pid = Process.GetCurrentProcess().Id;
@@ -238,7 +263,7 @@ namespace Maaaaa.Akn.Editor
                     UseShellExecute = true,          // 親から独立させる
                     CreateNoWindow = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    WorkingDirectory = AknUtil.ProjectRoot,
+                    WorkingDirectory = AssetCleanerUtil.ProjectRoot,
                 };
                 Process.Start(psi);
                 _helperLaunched = true;
@@ -248,18 +273,18 @@ namespace Maaaaa.Akn.Editor
             {
                 // ここで失敗しても予約フラグは残るので、次回起動時に検知して再提案できる。
                 AppendLog($"helper launch failed: {ex.Message}");
-                Debug.LogError($"[{AknStrings.ToolName}] キャッシュ掃除ヘルパーの起動に失敗しました: {ex.Message}");
+                Debug.LogError($"[{AssetCleanerStrings.ToolName}] キャッシュ掃除ヘルパーの起動に失敗しました: {ex.Message}");
             }
         }
 
         private static void WriteHelperScript(PendingClean pending)
         {
-            var proj = AknUtil.ProjectRoot;
+            var proj = AssetCleanerUtil.ProjectRoot;
             var sb = new StringBuilder();
             sb.AppendLine("param([int]$UnityPid)");
             sb.AppendLine("$ErrorActionPreference = 'SilentlyContinue'");
             sb.AppendLine($"$proj = '{PsEscape(proj)}'");
-            sb.AppendLine($"$akn = '{PsEscape(AknDir)}'");
+            sb.AppendLine($"$assetCleaner = '{PsEscape(AssetCleanerDir)}'");
             sb.AppendLine($"$log = '{PsEscape(LogPath)}'");
             sb.AppendLine($"$pending = '{PsEscape(PendingPath)}'");
             sb.AppendLine($"$done = '{PsEscape(DonePath)}'");
@@ -279,7 +304,7 @@ namespace Maaaaa.Akn.Editor
             var targets = pending.targetsRelative ?? new List<string>();
             sb.Append("$targets = @(");
             sb.Append(string.Join(", ", targets.Select(rel =>
-                $"'{PsEscape(AknUtil.Normalize(Path.Combine(proj, rel)))}'")));
+                $"'{PsEscape(AssetCleanerUtil.Normalize(Path.Combine(proj, rel)))}'")));
             sb.AppendLine(")");
             sb.AppendLine("foreach ($t in $targets) {");
             sb.AppendLine("  if (Test-Path -LiteralPath $t) {");
@@ -313,7 +338,7 @@ namespace Maaaaa.Akn.Editor
             var enabled = targets.Where(t => t.Enabled).ToList();
             var sb = new StringBuilder();
             sb.AppendLine("@echo off");
-            sb.AppendLine("rem いらないアセット消しちゃうもんネーター — キャッシュ掃除フォールバック");
+            sb.AppendLine("rem Poyo's Asset Cleaner キャッシュ掃除（手動実行用）");
             sb.AppendLine("rem 使い方: Unity を完全に終了してから、このバッチをダブルクリックしてください。");
             sb.AppendLine("setlocal");
             sb.AppendLine("echo.");
@@ -348,7 +373,7 @@ namespace Maaaaa.Akn.Editor
         {
             try
             {
-                EnsureAknDir();
+                EnsureAssetCleanerDir();
                 File.AppendAllText(LogPath,
                     $"{DateTime.Now:s} [editor] {message}{Environment.NewLine}");
             }

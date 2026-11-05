@@ -4,58 +4,42 @@
 
 | 項目 | 要件 |
 |---|---|
-| Unity | 2022.3 (LTS) |
+| Unity | 2022.3 |
 | VRChat SDK | Avatars 3.7.0 以上 |
-| OS | Windows（キャッシュ掃除機能は Windows 専用） |
+| OS | Windows（キャッシュ掃除は Windows のみ） |
 
-!!! note "VRChat SDK が無くても動きます"
-    SDK はアバターの**自動検出**にだけ使います。SDK が入っていない環境では自動検出が働きませんが、アバターの Prefab やシーンを手で登録すれば通常どおり使えます。
+VRChat SDK はアバターの自動検出に使います。SDK が無くても、アバターのフォルダを手で登録すれば使えます。
 
-## VCC / ALCOM から導入する（推奨）
+## VCC / ALCOM から入れる
 
-1. VCC または ALCOM に、配布元のリポジトリを追加します。
-2. 対象の Unity プロジェクトを開き、**Manage Packages** を選びます。
-3. 一覧から「いらないアセット消しちゃうもんネーター」を追加します。
+1. VCC または ALCOM に `https://vpm.maaaaa.net/index.json` を追加します。
+2. プロジェクトの Manage Packages を開き、「Poyo's Asset Cleaner」を追加します。
 
-## unitypackage から導入する
+## .unitypackage から入れる
 
-VCC を使っていない場合は、[リリースページ](https://github.com/Poyotoron/Asset-Keshichaumon-Nator/releases)から `.unitypackage` をダウンロードし、Unity のプロジェクトへドラッグ＆ドロップしてインポートしてください。
+[リリースページ](https://github.com/Poyotoron/Asset-Cleaner/releases)から `.unitypackage` をダウンロードし、Unity にドラッグ＆ドロップしてインポートします。
 
-## 導入できたか確認する
+## 開き方
 
-Unity のメニューに次の項目が増えていればインストール成功です。
+メニューの `Tools > Poyo's Asset Cleaner` でウィンドウが開きます。ウィンドウには 6 つのタブがあります。
 
-```
-Tools > いらないアセット消しちゃうもんネーター
-```
+![ウィンドウ上部のタブ](images/ac-tabs.png){ .shot loading=lazy }
 
-クリックするとツールのウィンドウが開きます。ウィンドウは 6 つのタブに分かれています。
-
-| タブ | 役割 |
+| タブ | 内容 |
 |---|---|
-| ルート (Roots) | 「使っている起点」を教える。**最初に設定する** |
-| 保護 (Protection) | 消したくないものを守る |
-| スキャン結果 (Scan Result) | 検出して退避する |
-| 重複検出 (Duplicates) | 内容が同じファイルを探す |
-| キャッシュ掃除 (Cache) | `Library/` を消して容量を取り戻す |
-| 情報 (About) | バージョン確認・不具合の報告先 |
+| ルート (Roots) | 使用中かどうかを判定する起点を登録します（[ルートの設定](roots.md)） |
+| 保護 (Protection) | 候補に出さないものの一覧と、自分で追加する保護です（[保護](protection.md)） |
+| スキャン結果 (Scan Result) | スキャン、退避、復元、完全削除をします（[スキャンと退避](scan.md)） |
+| 重複検出 (Duplicates) | 内容が同じファイルを探します（[重複の検出](duplicates.md)） |
+| キャッシュ掃除 (Cache) | `Library/` などを削除します（[キャッシュ掃除](cache.md)） |
+| 情報 (About) | バージョン、不具合の報告先です |
 
 ## 設定の保存先
 
-登録したルートや保護ルールは、次の場所に保存されます。
-
-```
-Assets/zzz_pytr/Asset-Keshichaumon-Nator/Settings.asset
-```
-
-めったに開かないフォルダなので、Project ウィンドウの末尾側に並ぶ名前にしてあります。
-
-!!! tip "古いバージョンから更新した場合"
-    以前は `Assets/Asset-Keshichaumon-Nator/` に設定を置いていました。更新後の初回起動時に**自動で移行されます。** 登録内容はそのまま引き継がれ、空になった古いフォルダは削除されます。手作業は不要です。
+登録したルートや保護の設定は `Assets/zzz_pytr/Asset-Cleaner/Settings.asset` に保存されます。
 
 ## アンインストール
 
-VCC の Manage Packages から削除します。設定ファイル（上記の `Settings.asset`）は `Assets/` 配下にあるため残ります。不要なら手で削除してください。
+VCC / ALCOM の Manage Packages で削除します。設定ファイルは残るので、不要なら `Assets/zzz_pytr/Asset-Cleaner/` を削除してください。
 
-!!! warning "退避フォルダを残したままアンインストールしない"
-    プロジェクト直下に `_UnusedAssets_…` フォルダが残っている場合、**復元にはこのツールが必要です。** アンインストールする前に、戻すものは戻しておいてください。
+退避フォルダ（`_UnusedAssets_…`）を元に戻すにはこのツールが必要です。戻すものがあれば、アンインストールの前に戻してください。

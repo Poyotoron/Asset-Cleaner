@@ -1,9 +1,7 @@
 # 更新履歴
 
-このドキュメントは**最新バージョン**の内容を説明しています。フッタに、対応するバージョン番号を表示しています。
+このドキュメントは最新のバージョンに合わせて書いています。対応するバージョンはページの下に表示しています。
 
-バージョンごとの変更点は、リポジトリの更新履歴を参照してください。
+バージョンごとの変更点は、リポジトリの更新履歴を見てください。
 
-[GitHub で更新履歴を見る](https://github.com/Poyotoron/Asset-Keshichaumon-Nator/blob/main/CHANGELOG.md){ .md-button }
-
-ツールの **情報 (About)** タブからも、いま入っているバージョンの確認と更新履歴へのリンクを開けます。
+[GitHub で更新履歴を見る](https://github.com/Poyotoron/Asset-Cleaner/blob/main/CHANGELOG.md){ .md-button }

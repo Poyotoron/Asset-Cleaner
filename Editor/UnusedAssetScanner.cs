@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// 中核アルゴリズム。GC の Mark &amp; Sweep と同型。
@@ -18,7 +18,7 @@ namespace Maaaaa.Akn.Editor
     {
         private const int ImplicitRootAttributionLimit = 200;
 
-        public static ScanResult Scan(AknSettings settings, RootSet roots)
+        public static ScanResult Scan(AssetCleanerSettings settings, RootSet roots)
         {
             var result = new ScanResult
             {
@@ -27,17 +27,17 @@ namespace Maaaaa.Akn.Editor
             };
 
             // --- Mark: ルートからの到達集合（キャッシュ利用）---
-            EditorUtility.DisplayProgressBar(AknStrings.ProgressTitle, AknStrings.ProgressBuildReachable, 0.2f);
+            EditorUtility.DisplayProgressBar(AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressBuildReachable, 0.2f);
             var reachable = DependencyCache.GetReachable(roots.AllRoots);
 
             // 説明表示にだけ使う。候補判定は従来どおり全ルートの reachable で行う。
             EditorUtility.DisplayProgressBar(
-                AknStrings.ProgressTitle, AknStrings.ProgressBuildAvatarReachable, 0.3f);
+                AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressBuildAvatarReachable, 0.3f);
             var reachableAvatarOnly = new HashSet<string>(
                 AssetDatabase.GetDependencies(roots.AvatarRoots.ToArray(), true), StringComparer.Ordinal);
 
             // --- 全アセット列挙（Assets 配下のファイルのみ）---
-            EditorUtility.DisplayProgressBar(AknStrings.ProgressTitle, AknStrings.ProgressEnumerate, 0.4f);
+            EditorUtility.DisplayProgressBar(AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressEnumerate, 0.4f);
             var allFiles = new List<string>();
             foreach (var path in AssetDatabase.GetAllAssetPaths())
             {
@@ -50,7 +50,7 @@ namespace Maaaaa.Akn.Editor
             // --- 判定単位と保護判定の文脈へ集約 ---
             // ツール出力フォルダ内では判定単位をファイルまで細かくする一方、保護判定は
             // 従来どおり出力フォルダ直下のエントリ全体を文脈として安全側に判定する。
-            EditorUtility.DisplayProgressBar(AknStrings.ProgressTitle, AknStrings.ProgressClassify, 0.6f);
+            EditorUtility.DisplayProgressBar(AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressClassify, 0.6f);
             var unitOf = new UnitResolver(settings, allFiles);
             var folderUnits = new Dictionary<string, List<string>>();
             var protectionContexts = new Dictionary<string, List<string>>();
@@ -89,7 +89,7 @@ namespace Maaaaa.Akn.Editor
                     if ((fi++ & 255) == 0)
                     {
                         EditorUtility.DisplayProgressBar(
-                            AknStrings.ProgressTitle, AknStrings.ProgressClassify,
+                            AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressClassify,
                             0.6f + 0.4f * fi / Math.Max(1, allFiles.Count));
                     }
 
@@ -122,7 +122,7 @@ namespace Maaaaa.Akn.Editor
                         {
                             result.ProtectedCount++;
                             AddProtectedEntry(protectedByUnit, usedContextPath,
-                                AknStrings.ReasonImplicitRoot, f, false);
+                                AssetCleanerStrings.ReasonImplicitRoot, f, false);
                         }
                         else
                         {
@@ -151,10 +151,10 @@ namespace Maaaaa.Akn.Editor
                     {
                         UnitPath = f,
                         ContainedFiles = unitFiles,
-                        SizeBytes = AknUtil.FileSize(f),
+                        SizeBytes = AssetCleanerUtil.FileSize(f),
                         Kind = ComputeKind(unitFiles, out var kd),
                         KindDetail = kd,
-                        Reason = AknStrings.ReasonUnreachable,
+                        Reason = AssetCleanerStrings.ReasonUnreachable,
                         Selected = false,
                     });
                 }
@@ -167,7 +167,7 @@ namespace Maaaaa.Akn.Editor
                     if ((i++ & 63) == 0)
                     {
                         EditorUtility.DisplayProgressBar(
-                            AknStrings.ProgressTitle, AknStrings.ProgressClassify,
+                            AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressClassify,
                             0.6f + 0.4f * i / folderUnits.Count);
                     }
 
@@ -206,7 +206,7 @@ namespace Maaaaa.Akn.Editor
                             result.ProtectedCount++;
                             foreach (var file in files)
                                 AddProtectedEntry(protectedByUnit, usedContextPath,
-                                    AknStrings.ReasonImplicitRoot, file, false);
+                                    AssetCleanerStrings.ReasonImplicitRoot, file, false);
                         }
                         else
                         {
@@ -233,10 +233,10 @@ namespace Maaaaa.Akn.Editor
                     {
                         UnitPath = unitPath,
                         ContainedFiles = files,
-                        SizeBytes = files.Sum(AknUtil.FileSize),
+                        SizeBytes = files.Sum(AssetCleanerUtil.FileSize),
                         Kind = ComputeKind(files, out var kindDetail),
                         KindDetail = kindDetail,
-                        Reason = AknStrings.ReasonUnreachable,
+                        Reason = AssetCleanerStrings.ReasonUnreachable,
                         Selected = false, // 既定は全選択 OFF（明示選択させる）
                     });
                 }
@@ -267,7 +267,7 @@ namespace Maaaaa.Akn.Editor
             {
                 entry.ContainedFiles.Add(file);
                 entry.FileCount++;
-                entry.SizeBytes += AknUtil.FileSize(file);
+                entry.SizeBytes += AssetCleanerUtil.FileSize(file);
             }
         }
 
@@ -283,7 +283,7 @@ namespace Maaaaa.Akn.Editor
             for (int i = 0; i < roots.ImplicitRoots.Count; i++)
             {
                 EditorUtility.DisplayProgressBar(
-                    AknStrings.ProgressTitle, AknStrings.ProgressAssignImplicitRoots,
+                    AssetCleanerStrings.ProgressTitle, AssetCleanerStrings.ProgressAssignImplicitRoots,
                     (float)i / Math.Max(1, roots.ImplicitRoots.Count));
                 var implicitRoot = roots.ImplicitRoots[i];
                 var reachableFromRoot = new HashSet<string>(
@@ -314,7 +314,7 @@ namespace Maaaaa.Akn.Editor
                 entry.Reason = reason;
             }
             entry.FileCount++;
-            entry.SizeBytes += AknUtil.FileSize(file);
+            entry.SizeBytes += AssetCleanerUtil.FileSize(file);
         }
 
         private static void BuildCandidateGroups(List<ScanResultEntry> candidates)
@@ -329,8 +329,8 @@ namespace Maaaaa.Akn.Editor
             {
                 if ((i & 63) == 0)
                 {
-                    EditorUtility.DisplayProgressBar(AknStrings.ProgressTitle,
-                        AknStrings.ProgressBuildCandidateGroups, (float)i / count);
+                    EditorUtility.DisplayProgressBar(AssetCleanerStrings.ProgressTitle,
+                        AssetCleanerStrings.ProgressBuildCandidateGroups, (float)i / count);
                 }
                 var dependencies = AssetDatabase.GetDependencies(candidates[i].ContainedFiles.ToArray(), true);
                 foreach (var dependency in dependencies)
@@ -399,20 +399,20 @@ namespace Maaaaa.Akn.Editor
             var counts = new Dictionary<AssetKind, int>();
             foreach (var f in files)
             {
-                var k = AknUtil.ClassifyKind(f);
+                var k = AssetCleanerUtil.ClassifyKind(f);
                 if (k == AssetKind.Other) continue;
                 counts[k] = counts.TryGetValue(k, out var c) ? c + 1 : 1;
             }
 
             if (counts.Count == 0)
             {
-                detail = AknUtil.KindLabel(AssetKind.Other);
+                detail = AssetCleanerUtil.KindLabel(AssetKind.Other);
                 return AssetKind.Other;
             }
 
             detail = string.Join(", ", KindDetailOrder
                 .Where(counts.ContainsKey)
-                .Select(k => $"{AknUtil.KindLabel(k)} {counts[k]}"));
+                .Select(k => $"{AssetCleanerUtil.KindLabel(k)} {counts[k]}"));
 
             // 2 種類以上の意味のある種別が混ざっていれば「混在」
             return counts.Count >= 2 ? AssetKind.Mixed : counts.Keys.First();
@@ -426,7 +426,7 @@ namespace Maaaaa.Akn.Editor
     /// </summary>
     internal class UnitResolver
     {
-        private readonly AknSettings _settings;
+        private readonly AssetCleanerSettings _settings;
         private readonly List<string> _toolOutputDirectories;
 
         // 自動推定用: 各フォルダの直下ファイル有無 / 直下子フォルダ集合
@@ -434,7 +434,7 @@ namespace Maaaaa.Akn.Editor
         private readonly Dictionary<string, HashSet<string>> _childFolders =
             new Dictionary<string, HashSet<string>>();
 
-        public UnitResolver(AknSettings settings, List<string> allFiles)
+        public UnitResolver(AssetCleanerSettings settings, List<string> allFiles)
         {
             _settings = settings;
             _toolOutputDirectories = (settings.toolOutputDirectories ?? new List<string>())

@@ -49,13 +49,13 @@ mkdocs serve -f "docs~/mkdocs.yml"
 `serve` は多少の問題を見逃します。**リンク切れなどは `--strict` を付けたビルドで検出します**（GitHub Actions もこの条件でビルドします）。
 
 ```powershell
-$env:AKN_VERSION = "0.3.3"
+$env:PACKAGE_VERSION = "0.3.3"
 mkdocs build --strict -f "docs~/mkdocs.yml"
 ```
 
 `Documentation built in ...` と出れば成功。警告が 1 つでもあれば失敗します。
 
-`AKN_VERSION` はフッタに出る「対応バージョン」です。渡さなければ `dev` と表示されます。公開時は GitHub Actions が `package.json` の `version` を読んで渡すので、**ページ側にバージョン番号を書かないでください。**
+`PACKAGE_VERSION` はフッタに出る「対応バージョン」です。渡さなければ `dev` と表示されます。公開時は GitHub Actions が `package.json` の `version` を読んで渡すので、**ページ側にバージョン番号を書かないでください。**
 
 ### 4. 終わったら
 
@@ -99,4 +99,4 @@ uv pip install -r "docs~/requirements.txt"
 
 - ビルド成果物 `docs~/site/` はコミットしません（`.gitignore` 済み）。
 - **フォルダ名の末尾の `~` を消さないでください。** Unity は末尾が `~` のフォルダを取り込まないため、この名前のおかげで配下に `.meta` が作られません。名前を変えると `.meta` が大量に生成され、配布物にも混ざります。
-- 画像は使わず、表と注記ブロックで説明します。
+- スクリーンショットは `docs/images/` に PNG で置き、本文から `![説明](images/ファイル名.png)` で参照します。撮影に使ってよいアセットは、はじめにのページの「スクリーンショットについて」に載せたものだけです。撮影の予定位置は本文中の `<!-- shot: ID | 内容 -->` のコメントで示しています。

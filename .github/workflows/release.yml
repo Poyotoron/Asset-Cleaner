@@ -4,6 +4,7 @@ name: Build Release
 # package.json の version を読み、その値でタグ・Release を作成し、
 # zip / unitypackage / package.json を Release に添付する。
 # VPM リスティング(package-list-action)は Release に添付された package.json を辿る。
+# ※ Release の説明欄は .github/release-notes/<version>.md を使う。
 on:
   workflow_dispatch:
 
@@ -37,16 +38,25 @@ jobs:
           echo "unityPackage=${{ runner.temp }}/${{ steps.pkgName.outputs.value }}-${{ steps.version.outputs.value }}.unitypackage" >> $GITHUB_ENV
           echo "metaList=${{ runner.temp }}/metaList" >> $GITHUB_ENV
           echo "version=${{ steps.version.outputs.value }}" >> $GITHUB_ENV
+          echo "releaseNotes=.github/release-notes/${{ steps.version.outputs.value }}.md" >> $GITHUB_ENV
 
-      # パッケージ本体を zip 化する。配布物に含めない開発用ファイルは除外する。
+      # 説明欄の無い Release を作らないよう、ノートの有無を先に確かめる
+      - name: Check Release Notes
+        run: |
+          if [ ! -s "${{ env.releaseNotes }}" ]; then
+            echo "Release notes not found: ${{ env.releaseNotes }}" >&2
+            exit 1
+          fi
+
+      # パッケージ本体を zip 化する。ドットで始まるフォルダは開発用なので配布物に含めない。
       - name: Create Package Zip
         run: |
           zip -r "${{ env.zipFile }}" . \
-            -x '.git/*' '.github/*' '.gitignore' '.claude/*' 'docs~/*'
+            -x '.git/*' '.github/*' '.gitignore' '.*/*' 'docs~/*'
 
       # .meta 一覧を作り、.unitypackage を生成する（VCC 非利用者向け）
       - name: Track Package Meta Files
-        run: find . -name '*.meta' ! -path './.git/*' ! -path './.github/*' > "${{ env.metaList }}"
+        run: find . -name '*.meta' ! -path './.*/*' > "${{ env.metaList }}"
 
       - name: Create UnityPackage
         uses: pCYSl5EDgo/create-unitypackage@v1.2.3
@@ -68,3 +78,4 @@ jobs:
             ${{ env.unityPackage }}
             package.json
           tag_name: ${{ env.version }}
+          body_path: ${{ env.releaseNotes }}

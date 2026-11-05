@@ -2,6 +2,18 @@
 
 このプロジェクトの変更履歴。バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従う。
 
+## [0.4.0] - 2026-11-04
+
+名前を「いらないアセット消しちゃうもんネーター」から「Poyo's Asset Cleaner」に変えた。退避・復元・保護の判定は変わらない。
+
+### Changed
+- **名前を変えた。** 表示名は「Poyo's Asset Cleaner」、パッケージ ID は `net.maaaaa.asset-cleaner`、メニューは `Tools > Poyo's Asset Cleaner`、ウィンドウのタブの名前は「Asset Cleaner」になった。リポジトリは [Poyotoron/Asset-Cleaner](https://github.com/Poyotoron/Asset-Cleaner)、ドキュメントは [https://ghp.maaaaa.net/Asset-Cleaner/](https://ghp.maaaaa.net/Asset-Cleaner/) に移った。
+- **旧版は自動で外れる。** `package.json` の `legacyPackages` に旧 ID を書いたので、VCC / ALCOM で新版を入れると旧版が削除される。旧版と同じプロジェクトに入っている間は、Console に旧版の削除を求める警告を 1 回出し、設定の移動はしない。
+- **設定の保存先を `Assets/zzz_pytr/Asset-Cleaner/Settings.asset` に変えた。** 旧い場所（`Assets/zzz_pytr/Asset-Keshichaumon-Nator/`、0.3.0 より前の `Assets/Asset-Keshichaumon-Nator/`）の設定は自動で移し、空になった旧フォルダは削除する。スクリプトの GUID を保ったので、設定アセットはそのまま読める。
+- **退避フォルダの目印を `.asset-cleaner-relocation.json` に変えた。** 新しく退避したフォルダは新しい名前で書く。旧版が作った `.akn-relocation.json` の退避フォルダも、そのまま一覧に出て復元・完全削除できる。
+- **キャッシュ掃除の作業フォルダを `<プロジェクト>/.asset-cleaner/` に変えた。** 旧版の `.akn/` は起動時に移す。両方あるときは移さず、旧フォルダを確かめて消すよう Console で案内する。
+- 画面の文言をいくつか直した（ルートが見つからないときにスキャンを止めた理由、退避の確認ダイアログ、保護の説明など）。
+
 ## [0.3.3] - 2026-08-16
 
 使い方のドキュメントサイトを公開した。ツールの挙動は変わらない。

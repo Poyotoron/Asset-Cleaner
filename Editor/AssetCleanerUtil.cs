@@ -4,10 +4,10 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>汎用ユーティリティ。パス変換・サイズ計算など。</summary>
-    internal static class AknUtil
+    internal static class AssetCleanerUtil
     {
         /// <summary>プロジェクトルート（Assets の親）の絶対パス。区切りは '/'。</summary>
         public static string ProjectRoot
