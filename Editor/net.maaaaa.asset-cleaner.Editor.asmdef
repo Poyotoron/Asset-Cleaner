@@ -1,6 +1,6 @@
 {
-    "name": "net.maaaaa.akn.Editor",
-    "rootNamespace": "Maaaaa.Akn.Editor",
+    "name": "net.maaaaa.asset-cleaner.Editor",
+    "rootNamespace": "Poyo.AssetCleaner.Editor",
     "references": [
         ""
     ],
@@ -13,6 +13,8 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        { "name": "net.maaaaa.asset-keshichaumon-nator", "expression": "0.0.0", "define": "ASSET_CLEANER_HAS_LEGACY" }
+    ],
     "noEngineReferences": false
 }

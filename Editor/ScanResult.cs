@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     internal enum AssetKind
     {

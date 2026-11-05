@@ -1,15 +1,15 @@
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// ユーザーに見える日本語文字列を一箇所に集約する（将来の多言語化のため）。
     /// コーディング規約: 文字列はここに集める。
     /// </summary>
-    internal static class AknStrings
+    internal static class AssetCleanerStrings
     {
         // ---- ツール識別 ----
-        public const string ToolName = "いらないアセット消しちゃうもんネーター";
-        public const string MenuPath = "Tools/いらないアセット消しちゃうもんネーター";
-        public const string WindowTitle = "消しちゃうもんネーター";
+        public const string ToolName = "Poyo's Asset Cleaner";
+        public const string MenuPath = "Tools/Poyo's Asset Cleaner";
+        public const string WindowTitle = "Asset Cleaner";
 
         // ---- タブ ----
         public const string TabRoots = "ルート (Roots)";
@@ -20,32 +20,35 @@ namespace Maaaaa.Akn.Editor
         public const string TabAbout = "情報 (About)";
 
         // ---- Roots タブ ----
-        public const string RootsHeader = "アバタールートディレクトリ";
+        public const string RootsHeader = "アバターのルートフォルダ";
         public const string RootsHelp =
-            "アバターの .prefab / .unity を含むディレクトリを登録してください。\n" +
-            "登録したフォルダを再帰的に走査し、見つかった Prefab / Scene を「使用の起点（ルート）」として扱います。\n" +
-            "ここを取りこぼすと、使用中のアセットを誤って未使用と判定します。";
+            "アバターの .prefab / .unity を含むフォルダを登録してください。\n" +
+            "サブフォルダも調べ、見つかった Prefab / Scene を使用の起点（ルート）にします。\n" +
+            "登録し忘れると、使用中のアセットを未使用と判定します。";
         public const string RootsDropArea = "ここにフォルダをドラッグ＆ドロップ";
         public const string RootsSelectFolder = "フォルダを選択して追加";
         public const string AddButton = "追加";
         public const string RootsInvalidIndividualAsset = "Prefab または Scene(.unity) を指定してください。";
         public const string RootsAddIndividualHeader = "個別ファイルをルートに追加（任意）";
         public const string RootsAddIndividualHelp =
-            "ディレクトリ単位ではなく、単一の Prefab / Scene をルートに追加できます。";
+            "Prefab / Scene を1件ずつルートに追加できます。";
         public const string RootsAutoDetectHeader = "自動検出されたアバター (VRCAvatarDescriptor)";
         public const string RootsAutoDetectButton = "アバターを自動検出";
-        public const string RootsAutoDetectNone = "自動検出されたアバターはありません（または VRChat SDK 未導入）。";
-        public const string RootsAutoDetectExcludeHint = "チェックを外すとルートから除外されます。";
+        public const string RootsAutoDetectNone = "アバターが見つからないか、VRChat SDK が入っていません。";
+        public const string RootsAutoDetectExcludeHint = "チェックを外すとルートから外れます。";
         public const string RootsImplicitHeaderFormat = "暗黙ルート ({0})";
         public const string RootsImplicitHeaderNotInspected = "暗黙ルート（未調査）";
         public const string RootsImplicitInspect = "暗黙ルートを調べる";
         public const string RootsImplicitHelp =
-            "ここに並んでいるものは、どこからも参照されていなくてもスキャンの起点として扱います。Resources 配下などは、参照が無くても実行時に読み込まれるためです。\n\n" +
-            "ツールの設定アセット（「最後に変換した衣装」などを覚えているもの）が含まれていると、変換元の衣装がいつまでも「使用中」と判定されます。心当たりがあれば、チェックを外して起点から除外してください。\n\n" +
-            "チェックを外したファイル自身は退避候補にならず、保護されます。外れるのは、そこからの参照を起点として扱うことだけです。\n\n" +
-            "ただし、そのファイルが参照していたアセットを退避すると、ツールの入力欄は空になります（参照が切れます）。それが困る場合は、そのアセットを退避しないでください。";
+            "参照されていなくてもスキャンの起点にするファイルです。Resources 内などのファイルは、参照がなくても実行時に読み込まれるためです。\n" +
+            "\n" +
+            "「最後に変換した衣装」などを覚えている設定アセットが含まれると、変換元の衣装が使用中と判定され続けます。心当たりがあれば、チェックを外してルートから外してください。\n" +
+            "\n" +
+            "チェックを外したファイル自体は保護され、退避候補にはなりません。そのファイルからの参照だけを、スキャンの起点として扱わなくなります。\n" +
+            "\n" +
+            "ただし、参照先のアセットを退避すると、ツールの入力欄は空になります（参照が切れます）。入力欄の参照を残したい場合は、そのアセットを退避しないでください。";
         public const string RootsImplicitNotInspected = "「暗黙ルートを調べる」を押すと一覧を表示します。";
-        public const string RemoveButton = "削除";
+        public const string RemoveButton = "外す";
         public const string RootsUnregistered = "（未登録）";
         public const string AssetsFolderRequired = "Assets/ 配下のフォルダを選択してください。";
         public const string FolderRequiredFormat = "フォルダを指定してください: {0}";
@@ -54,18 +57,18 @@ namespace Maaaaa.Akn.Editor
         // ---- Protection タブ ----
         public const string ProtHeader = "保護ルール";
         public const string ProtHelp =
-            "以下に該当するフォルダ／ファイルは、参照されていなくても退避対象から除外されます。\n" +
-            "判定に迷う場合は、誤って消してしまわないよう保護側に倒します。";
-        public const string ProtStructureHeader = "構造ヒューリスティック保護（自動）";
+            "次の条件に当てはまるフォルダとファイルは、参照されていなくても保護します。\n" +
+            "判定が不確かな場合も、誤って退避しないように保護します。";
+        public const string ProtStructureHeader = "フォルダの中身による保護（自動）";
         public const string ProtStructureDetail =
             "・.cs / .asmdef / .asmref / .dll / .shader / .hlsl / .cginc / .shadergraph を含む\n" +
             "・package.json / *.vpm.json を含む\n" +
-            "・Editor/ ディレクトリを持つ";
-        public const string ProtToolListHeader = "既知ツール名リスト（デフォルト保護）";
+            "・Editor/ フォルダを含む";
+        public const string ProtToolListHeader = "名前で保護するツールとフォルダ（既定）";
         public const string ProtExtHeader = "常に保護する拡張子";
-        public const string ProtWhitelistHeader = "ユーザーホワイトリスト（glob）";
+        public const string ProtWhitelistHeader = "保護するパス（glob パターン）";
         public const string ProtWhitelistHelp =
-            "例: Assets/MyTools/**  ——  マッチしたパスは常に保護されます。";
+            "例: Assets/MyTools/**（一致したパスは常に保護されます）";
         public const string ProtWhitelistAdd = "追加";
         public const string ProtWhitelistPlaceholder = "Assets/…/**";
 
@@ -75,27 +78,28 @@ namespace Maaaaa.Akn.Editor
         public const string ScanExecuteHeader = "スキャン実行";
         public const string ScanResultsHeader = "スキャン結果";
         public const string ScanScopeHeader = "スキャン範囲";
-        public const string ScanAutoGranularityToggle = "導入単位フォルダを自動推定する";
-        public const string ScanFixedDepthLabel = "固定深度:";
+        public const string ScanAutoGranularityToggle = "判定の単位を自動で推定する";
+        public const string ScanFixedDepthLabel = "フォルダの深さ:";
         public const string ScanScopeHelp =
-            "範囲を指定しても、参照の解析は常にプロジェクト全体で行います。範囲外のアバターから使われているアセットが、範囲を絞ったせいで未使用と判定されることはありません。";
+            "スキャン範囲を絞っても、参照は常にプロジェクト全体で調べます。範囲外のアバターが使っているアセットも使用中と判定します。";
         public const string ScanScopeDropArea = "ここに対象フォルダをドラッグ＆ドロップ";
         public const string ScanScopeSelectFolder = "フォルダを選択して追加";
-        public const string ScanScopeUnconfigured = "（未設定 — プロジェクト全体を対象）";
+        public const string ScanScopeUnconfigured = "（未設定。プロジェクト全体が対象）";
         public const string ScanToolOutputHeader = "ツール出力フォルダ";
         public const string ScanToolOutputHelp =
-            "衣装変換ツールなどが生成物を出すフォルダを登録します。中身をツール本体（スクリプトや DLL）と切り離して判定し、未使用の生成物を候補に出せるようにします。\n\n" +
-            "ツール本体そのものは登録後も保護されます。保護を外す設定ではありません。";
+            "衣装変換ツールなどが生成物を保存するフォルダを登録します。ツール本体（スクリプトや DLL）と生成物を別々に判定し、使われていない生成物を退避候補に出します。\n" +
+            "\n" +
+            "登録後もツール本体は保護されます。";
         public const string ScanToolOutputDropArea = "ここにツール出力フォルダをドラッグ＆ドロップ";
         public const string ScanToolOutputSelectFolder = "フォルダを選択して追加";
         public const string ScanToolOutputUnconfigured = "（未設定）";
-        public const string ScanScopeSummaryFormat = "スキャン範囲: {0}（範囲外 {1} 単位は判定していません）";
+        public const string ScanScopeSummaryFormat = "スキャン範囲: {0}（範囲外の判定の単位 {1} 件は調べていません）";
         public const string ScanScopeNoUnitsWarning =
-            "指定した範囲に判定単位が1つもありません。指定したフォルダが、判定単位（導入単位フォルダ）より深い可能性があります。範囲をもう少し浅いフォルダにするか、判定粒度の設定を見直してください。";
-        public const string ScanButton = "スキャン実行（非破壊）";
+            "指定した範囲に判定の単位となるフォルダがありません。範囲が、判定の単位となるフォルダより深い可能性があります。範囲を浅いフォルダにするか、判定の単位の設定を見直してください。";
+        public const string ScanButton = "スキャン実行";
         public const string ScanNoRootsError =
-            "ルート（アバター Prefab / Scene）が1つも見つかりません。\n" +
-            "このままスキャンすると全アセットが削除候補になり非常に危険なため、実行をブロックしました。\n" +
+            "ルート（アバター Prefab / Scene）が見つかりません。\n" +
+            "全アセットが退避候補になるため、スキャンを止めました。\n" +
             "「ルート」タブでアバターのフォルダを登録するか、自動検出を実行してください。";
         public const string ScanColSelect = "選択";
         public const string ScanColPath = "パス";
@@ -104,9 +108,9 @@ namespace Maaaaa.Akn.Editor
         public const string ScanColReason = "判定根拠";
         public const string ScanColProtect = "保護";
         public const string ScanColCount = "件数";
-        public const string ReasonUnreachable = "どのルートからも到達不能";
-        public const string ReasonExcludedImplicitRoot = "起点から除外したファイルを含むため保護";
-        public const string ReasonImplicitRoot = "スキャンの起点（暗黙ルート）として扱っているため保護";
+        public const string ReasonUnreachable = "ルートから参照なし";
+        public const string ReasonExcludedImplicitRoot = "ルートから外したファイルを含むため保護";
+        public const string ReasonImplicitRoot = "スキャンの起点（暗黙ルート）として保護";
         public const string ScanProtectButton = "保護に追加";
         public const string ScanEmpty = "退避候補は見つかりませんでした。";
         public const string ScanNotRunYet = "まだスキャンしていません。「スキャン実行」を押してください。";
@@ -115,24 +119,24 @@ namespace Maaaaa.Akn.Editor
         public const string ScanSummaryFormat =
             "退避候補: {0} 件 / 合計 {1}   （使用中: {2} / 保護: {3} / ルート: {4} 件）";
         public const string ScanSelectedSummaryFormat = "選択中: {0} 件 / {1}";
-        public const string ScanProtectedFoldoutFormat = "保護された単位 ({0})";
+        public const string ScanProtectedFoldoutFormat = "保護された判定の単位 ({0})";
         public const string ScanProtectedHelp =
-            "ここに並んでいるものは、未使用でも候補に出しません。シェーダー・エディタ拡張・ツール本体・パッケージなど、退避すると壊れやすいものを自動で守っています。";
+            "未使用でも退避候補に出さないものです。シェーダー、エディタ拡張、ツール本体、パッケージなど、退避すると動かなくなる可能性があるものを自動で保護します。";
         public const string ScanImplicitOnlyFoldoutFormat = "暗黙ルートだけで使用中 ({0})";
         public const string ScanImplicitOnlyHelp =
-            "ここに並んでいるものは、アバターやシーンからは参照されていません。設定アセットなどの「暗黙ルート」だけが起点になって「使用中」と判定されています。意図しない場合は、その起点を外すと退避候補に出るようになります。";
-        public const string ScanColImplicitRoots = "生かしている暗黙ルート";
-        public const string ScanExcludeImplicitRoots = "起点から外す";
+            "アバターやシーンからは参照されず、設定アセットなどの暗黙ルートからだけ参照されているものです。意図していない参照なら、その暗黙ルートを外すと退避候補になります。";
+        public const string ScanColImplicitRoots = "使用中にしている暗黙ルート";
+        public const string ScanExcludeImplicitRoots = "ルートから外す";
         public const string ScanImplicitRootsAttributionSkipped =
-            "暗黙ルートのいずれか（件数が多いため、Roots タブで確認してください）";
+            "暗黙ルートのいずれか（件数が多いため、ルートタブで確認してください）";
         public const string ScanImplicitRootsNotIdentified =
-            "暗黙ルートを特定できません（Roots タブで確認してください）";
+            "暗黙ルートを特定できません（ルートタブで確認してください）";
         public const string ScanFileCountFormat = "{0} 件";
         public const string ScanGroupHeaderFormat = "まとめて退避する必要があります（{0} 件・合計 {1}）";
         public const string ScanGroupToolOutputHelp =
-            "ツールの出力物と、その元になったアセットのまとまりです。一部だけ退避すると、残ったほうが参照切れになります。";
+            "ツールの生成物と、その元になったアセットのまとまりです。一部だけを退避すると、残ったアセットの参照が切れます。";
         public const string ScanGroupGenericHelp =
-            "互いに参照し合っている候補のまとまりです。一部だけ退避すると、残ったほうが参照切れになります。";
+            "互いに参照している候補のまとまりです。一部だけを退避すると、残ったアセットの参照が切れます。";
         public const string ScanGroupSourceAsset = "元アセット";
         public const string ScanGroupGeneratedAsset = "生成物";
         public const string ScanReferencedByTooltipFormat = "この候補を参照している候補:\n{0}";
@@ -142,17 +146,18 @@ namespace Maaaaa.Akn.Editor
         public const string AboutUnknownVersion = "バージョン不明";
         public const string AboutIssuesHeader = "バグ報告・要望・誤検出の報告";
         public const string AboutIssuesHelp =
-            "バグ報告・要望・誤検出の報告は GitHub の Issue へお願いします。\n\n" +
-            "とくに「使っているアセットなのに退避候補に出た」というケースは、最優先で知りたい報告です。心当たりがあれば、退避せずにそのまま報告してください。";
+            "バグ、要望、誤検出は GitHub の Issue で報告してください。\n" +
+            "\n" +
+            "使用中のアセットが退避候補に出たときは、退避せずに報告してください。";
         public const string AboutOpenIssues = "GitHub Issues を開く";
-        public const string AboutIssuesUrl = "https://github.com/Poyotoron/Asset-Keshichaumon-Nator/issues";
+        public const string AboutIssuesUrl = "https://github.com/Poyotoron/Asset-Cleaner/issues";
         public const string AboutLinksHeader = "リンク";
         public const string AboutRepository = "リポジトリ";
-        public const string AboutRepositoryUrl = "https://github.com/Poyotoron/Asset-Keshichaumon-Nator";
+        public const string AboutRepositoryUrl = "https://github.com/Poyotoron/Asset-Cleaner";
         public const string AboutChangelog = "変更履歴 (CHANGELOG)";
-        public const string AboutChangelogUrl = "https://github.com/Poyotoron/Asset-Keshichaumon-Nator/blob/main/CHANGELOG.md";
+        public const string AboutChangelogUrl = "https://github.com/Poyotoron/Asset-Cleaner/blob/main/CHANGELOG.md";
         public const string AboutLicense = "ライセンス: MIT";
-        public const string AboutReportInfoHeader = "報告に添えてほしい情報";
+        public const string AboutReportInfoHeader = "報告に添える情報";
         public const string AboutReportInfo =
             "・このツールのバージョン\n" +
             "・Unity のバージョン\n" +
@@ -163,13 +168,15 @@ namespace Maaaaa.Akn.Editor
         public const string AboutCopyFormat = "- ツール: {0} {1}\n- Unity: {2}\n- OS: {3}";
 
         // ---- 退避 / 復元 ----
-        public const string RelocateButton = "選択項目を退避（Move to Trash Folder）";
+        public const string RelocateButton = "選択項目を退避する";
         public const string RelocateConfirmTitle = "退避の確認";
         public const string RelocateConfirmFormat =
-            "{0} 個のフォルダ / {1} をプロジェクトルート直下の退避フォルダへ移動します。\n\n" +
-            "これは削除ではありません。退避フォルダから Restore で元に戻せます。\n" +
-            "移動後、Console に Missing 参照の警告が出ていないか確認してください。\n\n" +
-            "続行しますか？";
+            "{0} 個のフォルダ / {1} をプロジェクト直下の退避フォルダへ退避します。\n" +
+            "\n" +
+            "削除はしません。「復元」で元の場所に戻せます。\n" +
+            "退避後、Console に Missing 参照の警告がないか確認してください。\n" +
+            "\n" +
+            "退避しますか？";
         public const string RelocateConfirmOk = "退避する";
         public const string RelocateConfirmCancel = "キャンセル";
         public const string RelocateNothingSelected = "退避対象が選択されていません。";
@@ -178,10 +185,13 @@ namespace Maaaaa.Akn.Editor
             "・Console に Missing 参照の警告が出ていないか確認してください。\n" +
             "・問題があれば「復元」から元に戻せます。";
         public const string RelocateFoldFoldersConfirmFormat =
-            "\n\n空になる {0} 個のフォルダも一緒に畳みます（復元で元に戻せます）。";
-        public const string RelocateFoldFoldersDoneFormat = "\n空になったフォルダを {0} 件畳みました。";
+            "\n" +
+            "\n" +
+            "空になる {0} 個のフォルダも退避します（復元で元に戻せます）。";
+        public const string RelocateFoldFoldersDoneFormat = "\n" +
+            "空になったフォルダを {0} 件退避しました。";
         public const string RelocateDoneTitle = "退避完了";
-        public const string RestoreMetaAlreadyExistsFormat = "復元先の .meta が既に存在します。スキップ: {0}";
+        public const string RestoreMetaAlreadyExistsFormat = "復元先に .meta があるため、この項目を復元しませんでした: {0}";
 
         public const string RestoreHeader = "退避したアセットの復元";
         public const string RestoreHelp =
@@ -195,7 +205,7 @@ namespace Maaaaa.Akn.Editor
         public const string RestoreFolderKept =
             "\n一部が戻せなかったため、退避フォルダは残しています（残りの内容を確認してください）。";
         public const string RestoreInvalidFolder =
-            "選択したフォルダに退避マッピング（.akn-relocation.json）が見つかりません。";
+            "選択したフォルダに退避の記録ファイル（.asset-cleaner-relocation.json）がありません。";
         public const string RestoreTrashFoldersHeader = "退避済みフォルダ";
         public const string RestoreTrashFoldersHelp =
             "プロジェクト直下にある退避フォルダを一覧表示します。復元または完全削除できます。";
@@ -206,22 +216,22 @@ namespace Maaaaa.Akn.Editor
         public const string RestoreTrashFoldersReveal = "フォルダを開く";
         public const string RestoreTrashFoldersRestore = "復元";
         public const string RestoreTrashFoldersPurge = "完全削除";
-        public const string RestoreTrashFoldersFindFailedFormat = "退避フォルダの列挙に失敗しました: {0}";
+        public const string RestoreTrashFoldersFindFailedFormat = "退避フォルダの一覧を取得できませんでした: {0}";
 
         // ---- 進捗 ----
         public const string ProgressTitle = "スキャン中…";
-        public const string ProgressCollectRoots = "ルート集合を収集しています…";
-        public const string ProgressBuildReachable = "依存グラフを構築しています…";
-        public const string ProgressBuildAvatarReachable = "アバターとシーンからの到達を調べています…";
+        public const string ProgressCollectRoots = "ルートを集めています…";
+        public const string ProgressBuildReachable = "アセットの参照関係を調べています…";
+        public const string ProgressBuildAvatarReachable = "アバターとシーンから参照をたどっています…";
         public const string ProgressAssignImplicitRoots = "使用中にしている暗黙ルートを調べています…";
-        public const string ProgressEnumerate = "アセットを列挙しています…";
+        public const string ProgressEnumerate = "アセットの一覧を作っています…";
         public const string ProgressClassify = "判定しています…";
         public const string ProgressBuildCandidateGroups = "候補間の参照関係を調べています…";
         public const string ProgressRelocate = "退避しています…";
         public const string ProgressRestore = "復元しています…";
         public const string ProgressMeasureCache = "キャッシュサイズを計測しています…";
         public const string ProgressHashing = "ファイルのハッシュを計算しています…";
-        public const string ProgressExportPackage = ".unitypackage をエクスポートしています…";
+        public const string ProgressExportPackage = ".unitypackage を書き出しています…";
 
         public const string Ok = "OK";
         public const string Cancel = "キャンセル";
@@ -229,46 +239,50 @@ namespace Maaaaa.Akn.Editor
         // ---- 退避オプション ----
         public const string RelocateExportPackageToggle = "退避前に .unitypackage としてバックアップする";
         public const string RelocateExportPackageHelp =
-            "退避対象を .unitypackage として書き出してから退避します。復元とは別の、もう一段の安全網です。\n" +
-            "書き出し先はプロジェクトルート直下の退避フォルダ内（_UnusedAssets_…/backup.unitypackage）です。";
+            "退避前に対象を .unitypackage に書き出します。「復元」とは別にバックアップを残せます。\n" +
+            "保存先はプロジェクト直下の退避フォルダ内（_UnusedAssets_…/backup.unitypackage）です。";
         public const string RelocateExportedFormat = "\n.unitypackage を書き出しました:\n{0}";
 
         // ---- 完全削除 ----
         public const string PurgeHeader = "退避フォルダの完全削除（取り消し不可）";
         public const string PurgeHelp =
-            "退避フォルダ（_UnusedAssets_…）を完全に削除します。この操作は取り消せません。\n" +
-            "削除するとアセットは失われ、復元（Restore）できなくなります。本当に不要と確認できたフォルダにのみ使用してください。";
+            "退避フォルダ（_UnusedAssets_…）と中のアセットを完全に削除します。この操作は取り消せず、復元もできません。\n" +
+            "不要と確認できたフォルダだけを削除してください。";
         public const string PurgeSelectButton = "退避フォルダを選んで完全削除";
         public const string PurgeConfirmStage1Title = "完全削除の確認（1/2）";
         public const string PurgeConfirmStage1Format =
-            "次の退避フォルダを完全に削除します。\n{0}\n\n" +
-            "対象: {1} 件 / {2}\n\n" +
-            "これは取り消せません。復元できなくなります。本当に続行しますか？";
+            "次の退避フォルダを完全に削除します。\n" +
+            "{0}\n" +
+            "\n" +
+            "対象: {1} 件 / {2}\n" +
+            "\n" +
+            "取り消しと復元はできません。完全に削除しますか？";
         public const string PurgeConfirmStage2Title = "完全削除の最終確認（2/2）";
         public const string PurgeConfirmStage2 =
-            "最終確認です。このフォルダとその中身を完全に削除します。\n復元はできません。実行しますか？";
+            "このフォルダと中のアセットを完全に削除します。\n" +
+            "復元はできません。完全に削除しますか？";
         public const string PurgeConfirmProceed = "完全に削除する";
         public const string PurgeDoneFormat = "退避フォルダを完全に削除しました:\n{0}";
         public const string PurgeNotTrashFolder =
-            "選択したフォルダは本ツールの退避フォルダ（.akn-relocation.json を含む）ではありません。\n" +
-            "安全のため、退避フォルダ以外は完全削除できません。";
+            "選択したフォルダには退避の記録ファイル（.asset-cleaner-relocation.json）がありません。\n" +
+            "このツールの退避フォルダ以外は、完全削除できません。";
         public const string PurgeFailedFormat = "削除に失敗しました: {0}";
 
         // ---- ファイル単位モード ----
         public const string ScanFileUnitToggle = "ファイル単位モード（上級者向け）";
         public const string ScanFileUnitHelp =
-            "フォルダ集約を無効化し、アセットを1ファイルずつ列挙します。\n" +
-            "「使用中の衣装フォルダから未使用テクスチャだけ退避」といった細かい操作ができますが、\n" +
-            "フォルダ単位判定が持つ安全性（1商品=1フォルダの保護）が弱まります。既定は OFF のままを推奨します。";
+            "フォルダにまとめず、アセットを1ファイルずつ判定します。\n" +
+            "使用中の衣装フォルダから未使用テクスチャだけを退避する、といった操作ができます。\n" +
+            "ただし、1商品を1フォルダにまとめて保護する働きが弱くなります。OFF のまま使うことをおすすめします。";
 
         // ---- 重複検出（SHA-256） ----
         public const string DupHeader = "重複アセット検出（内容が同一のファイル）";
         public const string DupHelp =
-            "Assets/ 配下を SHA-256 で照合し、内容が完全に一致するファイル群を検出します。\n" +
-            "共通基盤（シェーダー・テクスチャ等）を複数の配布物が同梱している場合などに見つかります。\n" +
-            "これは検出（レポート）のみで、自動では何も移動・削除しません。参照されている重複を消すと壊れるため、\n" +
-            "内容を確認したうえで手動で判断してください。";
-        public const string DupScanButton = "重複を検出（非破壊）";
+            "Assets/ 内のファイルを SHA-256 で照合し、内容が完全に一致するものを調べます。\n" +
+            "シェーダーやテクスチャなどを、複数の配布物が同梱している場合などに見つかります。\n" +
+            "検出だけを行い、自動では退避も削除もしません。参照されている重複を消すと参照が切れます。\n" +
+            "内容を確認して、削除するか手動で判断してください。";
+        public const string DupScanButton = "重複を検出";
         public const string DupNotRunYet = "まだ検出していません。「重複を検出」を押してください。";
         public const string DupEmpty = "内容が重複するファイルは見つかりませんでした。";
         public const string DupSummaryFormat =
@@ -283,28 +297,27 @@ namespace Maaaaa.Akn.Editor
         public const string CacheWindowsOnly =
             "この機能は現在 Windows のみ対応です。この環境では利用できません。";
         public const string CacheIntro =
-            "Assets/ からアセットを退避しても Library/ 配下のキャッシュは縮みません。ここを全削除すると\n" +
-            "ディスク容量を大きく取り戻せる場合があります。ただし次回 Unity 起動時に全アセットの再インポートが\n" +
-            "発生します。";
+            "アセットを退避しても Library/ 内のキャッシュは減りません。キャッシュをすべて削除すると、空き容量が増える場合があります。\n" +
+            "ただし、次回 Unity 起動時にすべてのアセットが再インポートされます。";
         // 過小表現を避け、目立つ警告として出す
         public const string CacheWarnMain =
-            "⚠ 次回 Unity 起動時に、全アセットの再インポートが発生します。\n" +
-            "プロジェクト規模により 数分〜数十分（それ以上になることもあります）かかります。\n" +
-            "失うのはデータではなく「時間」です。「一瞬で終わる」「安全」といった軽い操作ではありません。";
+            "次回 Unity 起動時に、すべてのアセットが再インポートされます。\n" +
+            "プロジェクトの規模により数分〜数十分かかり、それ以上になることもあります。\n" +
+            "再インポートが終わるまで Unity は使えません。";
         // 見積りの根拠を数値で示す
         public const string CacheStatsFormat =
-            "あなたのプロジェクトの規模:\n" +
+            "プロジェクトの規模:\n" +
             "・現在の Library/ サイズ: {0}\n" +
             "・Assets/ のアセット数: {1} 個 / 合計 {2}";
         // 所要時間の目安（環境差が大きいので断定しない）
         public const string CacheTimeEstimateGeneric =
-            "所要時間の目安: 環境（CPU / ストレージ / アセット構成）で大きく変わるため断定できません。\n" +
-            "SSD でも数分、規模が大きい・HDD の場合は数十分以上かかることがあります。";
+            "かかる時間は CPU、ストレージ、アセットの構成によって変わります。\n" +
+            "SSD でも数分、規模が大きい場合や HDD の場合は数十分以上かかることがあります。";
         public const string CacheTimeEstimateMeasuredFormat =
             "前回このプロジェクトでは、掃除後の起動に約 {0} かかりました（実測値）。";
         // 実行タイミングの助言
         public const string CacheTimingAdvice =
-            "推奨タイミング: 作業終了時、離席前、就寝前など、しばらく Unity を使わないときに実行してください。";
+            "作業の終了時や離席前など、しばらく Unity を使わないときに実行してください。";
         // 削除対象（全件を列挙して見せる）
         public const string CacheTargetsHeader = "削除対象（全件）";
         public const string CacheMeasureButton = "サイズを計測 / 更新";
@@ -313,7 +326,7 @@ namespace Maaaaa.Akn.Editor
             "掃除が予約されています。次回 Unity を終了すると、ヘルパーがキャッシュを削除します。\n予約日時: {0}";
         public const string CacheCancelReserveButton = "予約をキャンセルする";
         public const string CacheCleanNowButton = "今すぐ Unity を終了して掃除する…";
-        public const string CacheFallbackButton = "clean-cache.bat を生成（手動実行用フォールバック）";
+        public const string CacheFallbackButton = "clean-cache.bat を作成する（手動実行用）";
         public const string CacheIncludeLogsToggle = "Logs/ も削除する（既定 OFF: 不具合調査に使う可能性があるため）";
         public const string CacheNextButton = "次へ（最終確認）";
         public const string CacheTargetsCsprojNote = "・*.csproj / *.sln （再生成されます）";
@@ -345,17 +358,17 @@ namespace Maaaaa.Akn.Editor
         // 起動時の再インポート通知
         public const string CacheJustCleanedTitle = "キャッシュを掃除しました";
         public const string CacheJustCleanedMessage =
-            "前回終了時にビルドキャッシュを削除しました。\n" +
-            "この起動では全アセットの再インポートが実行されています（または直前に完了しました）。\n" +
-            "「フリーズした」と誤解して強制終了しないでください。完了までお待ちください。";
+            "前回 Unity 終了時にビルドキャッシュを削除しました。\n" +
+            "この起動時に、すべてのアセットが再インポートされています（または直前に完了しました）。\n" +
+            "再インポート中は強制終了せず、完了までお待ちください。";
         public const string CacheJustCleanedMeasuredFormat =
             "\n\n今回の掃除後の起動には約 {0} かかりました。";
 
         // 起動時検証: 予約が残っている（前回掃除が完了しなかった）
         public const string CacheLeftoverTitle = "前回のキャッシュ掃除が完了しませんでした";
         public const string CacheLeftoverMessage =
-            "キャッシュ掃除の予約が残っています。前回の掃除が実行されなかった可能性があります\n" +
-            "（Unity のクラッシュ・強制終了時など）。害はありません（掃除されなかっただけです）。\n\n" +
-            "「キャッシュ掃除」タブから再度実行できます。予約は解除しました。";
+            "キャッシュ掃除の予約が残っています。Unity のクラッシュや強制終了などで、前回の掃除が実行されなかった可能性があります。キャッシュは削除されていません。\n" +
+            "\n" +
+            "予約を解除しました。もう一度実行するには「キャッシュ掃除」タブで予約してください。";
     }
 }

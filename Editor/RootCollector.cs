@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>ルート集合の収集結果。</summary>
     internal class RootSet
@@ -40,7 +40,7 @@ namespace Maaaaa.Akn.Editor
             "/StreamingAssets/",
         };
 
-        public static RootSet Collect(AknSettings settings)
+        public static RootSet Collect(AssetCleanerSettings settings)
         {
             var set = new RootSet();
             var avatar = new HashSet<string>();
@@ -63,7 +63,7 @@ namespace Maaaaa.Akn.Editor
             // --- 個別ファイル指定 ---
             foreach (var p in settings.additionalRootAssets.Where(a => !string.IsNullOrEmpty(a)))
             {
-                var ext = AknUtil.Ext(p);
+                var ext = AssetCleanerUtil.Ext(p);
                 if (ext == ".prefab" || ext == ".unity")
                 {
                     avatar.Add(p);
@@ -80,7 +80,7 @@ namespace Maaaaa.Akn.Editor
             // --- Build Settings の有効な Scene もアバター系ルート扱い ---
             foreach (var scene in EditorBuildSettings.scenes)
             {
-                if (scene.enabled && !string.IsNullOrEmpty(scene.path) && File.Exists(AknUtil.ToAbsolute(scene.path)))
+                if (scene.enabled && !string.IsNullOrEmpty(scene.path) && File.Exists(AssetCleanerUtil.ToAbsolute(scene.path)))
                 {
                     avatar.Add(scene.path);
                 }
@@ -105,7 +105,7 @@ namespace Maaaaa.Akn.Editor
                 if (!avatar.Contains(p)) set.AllRoots.Add(p);
             }
 
-            set.Messages.Add($"アバター系ルート: {set.AvatarRoots.Count} 件、暗黙ルート: {set.ImplicitRoots.Count} 件");
+            set.Messages.Add($"アバターとシーンのルート: {set.AvatarRoots.Count} 件、暗黙ルート: {set.ImplicitRoots.Count} 件");
             return set;
         }
 
@@ -116,7 +116,7 @@ namespace Maaaaa.Akn.Editor
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
-                var ext = AknUtil.Ext(path);
+                var ext = AssetCleanerUtil.Ext(path);
                 if (ext == ".prefab" || ext == ".unity")
                 {
                     yield return path;
@@ -140,7 +140,7 @@ namespace Maaaaa.Akn.Editor
                 }
 
                 // Assets 直下の *.asset（設定系 ScriptableObject の可能性）
-                if (AknUtil.Ext(path) == ".asset")
+                if (AssetCleanerUtil.Ext(path) == ".asset")
                 {
                     // "Assets/xxx.asset" のように直下だけを対象
                     var rel = path.Substring("Assets/".Length);

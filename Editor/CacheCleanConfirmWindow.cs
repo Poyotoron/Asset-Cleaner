@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// キャッシュ掃除の二段階確認ウィンドウ。
@@ -30,8 +30,8 @@ namespace Maaaaa.Akn.Editor
         {
             var w = CreateInstance<CacheCleanConfirmWindow>();
             w.titleContent = new GUIContent(mode == Mode.Reserve
-                ? AknStrings.CacheReserveButton
-                : AknStrings.CacheCleanNowButton);
+                ? AssetCleanerStrings.CacheReserveButton
+                : AssetCleanerStrings.CacheCleanNowButton);
             w._mode = mode;
             w._targets = targets;
             w._libSize = libSize;
@@ -46,41 +46,41 @@ namespace Maaaaa.Akn.Editor
         {
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
 
-            EditorGUILayout.LabelField(AknStrings.CacheHeader, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(AssetCleanerStrings.CacheHeader, EditorStyles.boldLabel);
 
             // 目立つ警告
-            EditorGUILayout.HelpBox(AknStrings.CacheWarnMain, MessageType.Warning);
+            EditorGUILayout.HelpBox(AssetCleanerStrings.CacheWarnMain, MessageType.Warning);
 
             // 数値の根拠
             EditorGUILayout.HelpBox(string.Format(
-                AknStrings.CacheStatsFormat,
-                AknUtil.HumanSize(_libSize),
+                AssetCleanerStrings.CacheStatsFormat,
+                AssetCleanerUtil.HumanSize(_libSize),
                 _assetCount,
-                AknUtil.HumanSize(_assetSize)), MessageType.Info);
+                AssetCleanerUtil.HumanSize(_assetSize)), MessageType.Info);
 
             // 所要時間の目安（実測があれば優先）
             if (_measuredReimport > 0)
             {
                 EditorGUILayout.HelpBox(string.Format(
-                    AknStrings.CacheTimeEstimateMeasuredFormat,
-                    AknUtil.HumanDuration(_measuredReimport)), MessageType.Info);
+                    AssetCleanerStrings.CacheTimeEstimateMeasuredFormat,
+                    AssetCleanerUtil.HumanDuration(_measuredReimport)), MessageType.Info);
             }
-            EditorGUILayout.HelpBox(AknStrings.CacheTimeEstimateGeneric, MessageType.None);
+            EditorGUILayout.HelpBox(AssetCleanerStrings.CacheTimeEstimateGeneric, MessageType.None);
 
             // 削除対象を全件列挙
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField(AknStrings.CacheTargetsHeader, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(AssetCleanerStrings.CacheTargetsHeader, EditorStyles.boldLabel);
             foreach (var t in _targets.Where(t => t.Enabled))
             {
-                var size = t.SizeBytes >= 0 ? AknUtil.HumanSize(t.SizeBytes) : "未計測";
+                var size = t.SizeBytes >= 0 ? AssetCleanerUtil.HumanSize(t.SizeBytes) : "未計測";
                 EditorGUILayout.LabelField($"・{t.RelativePath}/   （{size}{(t.Exists ? "" : " / 無し")}）",
                     EditorStyles.miniLabel);
             }
-            EditorGUILayout.LabelField(AknStrings.CacheTargetsCsprojNote, EditorStyles.miniLabel);
+            EditorGUILayout.LabelField(AssetCleanerStrings.CacheTargetsCsprojNote, EditorStyles.miniLabel);
 
             // 実行タイミング助言
             EditorGUILayout.Space();
-            EditorGUILayout.HelpBox(AknStrings.CacheTimingAdvice, MessageType.None);
+            EditorGUILayout.HelpBox(AssetCleanerStrings.CacheTimingAdvice, MessageType.None);
 
             EditorGUILayout.EndScrollView();
 
@@ -93,12 +93,12 @@ namespace Maaaaa.Akn.Editor
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(AknStrings.Cancel, GUILayout.Height(28)))
+                if (GUILayout.Button(AssetCleanerStrings.Cancel, GUILayout.Height(28)))
                 {
                     Close();
                     GUIUtility.ExitGUI();
                 }
-                if (GUILayout.Button(AknStrings.CacheNextButton, GUILayout.Height(28)))
+                if (GUILayout.Button(AssetCleanerStrings.CacheNextButton, GUILayout.Height(28)))
                 {
                     _step = 2;
                 }
@@ -107,14 +107,14 @@ namespace Maaaaa.Akn.Editor
 
         private void DrawStage2()
         {
-            EditorGUILayout.LabelField(AknStrings.CacheConfirmStage2Title, EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(AssetCleanerStrings.CacheConfirmStage2Title, EditorStyles.boldLabel);
 
             // チェックしなければ実行ボタンを有効化しない
-            _ack = EditorGUILayout.ToggleLeft(AknStrings.CacheAckCheckbox, _ack);
+            _ack = EditorGUILayout.ToggleLeft(AssetCleanerStrings.CacheAckCheckbox, _ack);
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(AknStrings.Cancel, GUILayout.Height(28)))
+                if (GUILayout.Button(AssetCleanerStrings.Cancel, GUILayout.Height(28)))
                 {
                     Close();
                     GUIUtility.ExitGUI();
@@ -122,8 +122,8 @@ namespace Maaaaa.Akn.Editor
                 using (new EditorGUI.DisabledScope(!_ack))
                 {
                     var label = _mode == Mode.Reserve
-                        ? AknStrings.CacheReserveConfirmButton
-                        : AknStrings.CacheCleanNowConfirmButton;
+                        ? AssetCleanerStrings.CacheReserveConfirmButton
+                        : AssetCleanerStrings.CacheCleanNowConfirmButton;
                     if (GUILayout.Button(label, GUILayout.Height(28)))
                     {
                         Execute();
@@ -141,10 +141,10 @@ namespace Maaaaa.Akn.Editor
                 var pending = CacheClean.ReadPending();
                 Close();
                 EditorUtility.DisplayDialog(
-                    AknStrings.ToolName,
-                    string.Format(AknStrings.CacheReservedDialogFormat,
-                        string.Format(AknStrings.CacheReservedNoteFormat, pending?.reservedAt ?? "")),
-                    AknStrings.Ok);
+                    AssetCleanerStrings.ToolName,
+                    string.Format(AssetCleanerStrings.CacheReservedDialogFormat,
+                        string.Format(AssetCleanerStrings.CacheReservedNoteFormat, pending?.reservedAt ?? "")),
+                    AssetCleanerStrings.Ok);
                 GUIUtility.ExitGUI();
             }
             else // CleanNow: 予約 + ヘルパー起動 + 即 Exit

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// 依存グラフ（到達集合）のキャッシュ。

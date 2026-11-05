@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using UnityEditor;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>重複グループ内の1ファイル。</summary>
     internal class DuplicateFile
@@ -40,7 +40,7 @@ namespace Maaaaa.Akn.Editor
     /// </summary>
     internal static class DuplicateDetector
     {
-        public static DuplicateReport Scan(AknSettings settings)
+        public static DuplicateReport Scan(AssetCleanerSettings settings)
         {
             var report = new DuplicateReport();
 
@@ -58,7 +58,7 @@ namespace Maaaaa.Akn.Editor
             catch { /* 判定不能でもレポート自体は出す */ }
 
             // --- 全アセット列挙 + サイズ別グルーピング ---
-            EditorUtility.DisplayProgressBar(AknStrings.ToolName, AknStrings.ProgressEnumerate, 0.1f);
+            EditorUtility.DisplayProgressBar(AssetCleanerStrings.ToolName, AssetCleanerStrings.ProgressEnumerate, 0.1f);
             var bySize = new Dictionary<long, List<string>>();
             foreach (var path in AssetDatabase.GetAllAssetPaths())
             {
@@ -66,7 +66,7 @@ namespace Maaaaa.Akn.Editor
                 if (path.EndsWith(".meta")) continue;
                 if (AssetDatabase.IsValidFolder(path)) continue;
 
-                long size = AknUtil.FileSize(path);
+                long size = AssetCleanerUtil.FileSize(path);
                 if (size <= 0) continue; // 空ファイルは対象外
 
                 if (!bySize.TryGetValue(size, out var list))
@@ -92,11 +92,11 @@ namespace Maaaaa.Akn.Editor
                         if ((hashed++ & 31) == 0)
                         {
                             EditorUtility.DisplayProgressBar(
-                                AknStrings.ToolName, AknStrings.ProgressHashing,
+                                AssetCleanerStrings.ToolName, AssetCleanerStrings.ProgressHashing,
                                 0.1f + 0.9f * hashed / System.Math.Max(1, totalToHash));
                         }
 
-                        var hash = ComputeSha256(AknUtil.ToAbsolute(path));
+                        var hash = ComputeSha256(AssetCleanerUtil.ToAbsolute(path));
                         if (hash == null) continue;
 
                         if (!byHash.TryGetValue(hash, out var group))

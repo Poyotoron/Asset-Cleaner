@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// キャッシュ掃除のライフサイクル管理。
@@ -35,11 +35,11 @@ namespace Maaaaa.Akn.Editor
 
             // 予約状態での終了時、再度警告し、この時点でキャンセルできるようにする。
             int choice = EditorUtility.DisplayDialogComplex(
-                AknStrings.CacheQuitWarnTitle,
-                AknStrings.CacheQuitWarnMessage,
-                AknStrings.CacheQuitProceed,          // 0: 掃除して終了
-                AknStrings.CacheQuitAbort,            // 1: 終了しない
-                AknStrings.CacheQuitCancelReservation // 2: 予約を取り消して終了
+                AssetCleanerStrings.CacheQuitWarnTitle,
+                AssetCleanerStrings.CacheQuitWarnMessage,
+                AssetCleanerStrings.CacheQuitProceed,          // 0: 掃除して終了
+                AssetCleanerStrings.CacheQuitAbort,            // 1: 終了しない
+                AssetCleanerStrings.CacheQuitCancelReservation // 2: 予約を取り消して終了
             );
 
             switch (choice)
@@ -66,10 +66,12 @@ namespace Maaaaa.Akn.Editor
 
         // SessionState はドメインリロードを跨いで保持され、Unity 再起動でクリアされる。
         // これにより「真の起動」と「スクリプト再コンパイルによるドメインリロード」を区別する。
-        private const string SessionStartedKey = "net.maaaaa.akn.cacheSessionVerified";
+        private const string SessionStartedKey = "net.maaaaa.asset-cleaner.cacheSessionVerified";
 
         private static void VerifyOnStartup()
         {
+            // 起動前に更新した場合も、旧版が残した予約・完了の印を引き継ぐ。
+            CacheClean.MigrateLegacyDir();
             // スクリプト再コンパイル等のドメインリロードでは検証しない。
             // （ここで検証すると、予約中にコードを触っただけで予約が誤ってキャンセルされる。）
             if (SessionState.GetBool(SessionStartedKey, false)) return;
@@ -88,7 +90,7 @@ namespace Maaaaa.Akn.Editor
                 CacheClean.AppendLog("leftover reservation detected on startup (previous clean did not run).");
                 CacheClean.CancelReservation();
                 EditorUtility.DisplayDialog(
-                    AknStrings.CacheLeftoverTitle, AknStrings.CacheLeftoverMessage, AknStrings.Ok);
+                    AssetCleanerStrings.CacheLeftoverTitle, AssetCleanerStrings.CacheLeftoverMessage, AssetCleanerStrings.Ok);
             }
         }
 
@@ -107,7 +109,7 @@ namespace Maaaaa.Akn.Editor
             // 明らかに異常（極端に長い/負）は捨てる。
             if (measured < 1 || measured > 6 * 3600) measured = 0;
 
-            var settings = AknSettings.GetOrCreate();
+            var settings = AssetCleanerSettings.GetOrCreate();
             if (measured > 0)
             {
                 settings.lastReimportSeconds = measured;
@@ -121,10 +123,10 @@ namespace Maaaaa.Akn.Editor
 
             CacheClean.ClearDoneMarker();
 
-            var msg = AknStrings.CacheJustCleanedMessage;
+            var msg = AssetCleanerStrings.CacheJustCleanedMessage;
             if (measured > 0)
-                msg += string.Format(AknStrings.CacheJustCleanedMeasuredFormat, AknUtil.HumanDuration(measured));
-            EditorUtility.DisplayDialog(AknStrings.CacheJustCleanedTitle, msg, AknStrings.Ok);
+                msg += string.Format(AssetCleanerStrings.CacheJustCleanedMeasuredFormat, AssetCleanerUtil.HumanDuration(measured));
+            EditorUtility.DisplayDialog(AssetCleanerStrings.CacheJustCleanedTitle, msg, AssetCleanerStrings.Ok);
         }
     }
 }

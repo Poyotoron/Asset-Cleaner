@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// 単純な glob マッチャ。
@@ -16,12 +16,12 @@ namespace Maaaaa.Akn.Editor
         {
             if (string.IsNullOrEmpty(glob)) return false;
             var regex = ToRegex(glob);
-            return regex.IsMatch(AknUtil.Normalize(path));
+            return regex.IsMatch(AssetCleanerUtil.Normalize(path));
         }
 
         private static Regex ToRegex(string glob)
         {
-            glob = AknUtil.Normalize(glob);
+            glob = AssetCleanerUtil.Normalize(glob);
             var sb = new StringBuilder();
             sb.Append('^');
             for (int i = 0; i < glob.Length; i++)

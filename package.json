@@ -1,7 +1,7 @@
 {
-  "name": "net.maaaaa.asset-keshichaumon-nator",
-  "displayName": "いらないアセット消しちゃうもんネーター",
-  "version": "0.3.3",
+  "name": "net.maaaaa.asset-cleaner",
+  "displayName": "Poyo's Asset Cleaner",
+  "version": "0.4.0",
   "description": "アバターから参照されていない未使用アセットを検出し、安全に退避します。",
   "unity": "2022.3",
   "license": "MIT",
@@ -9,10 +9,13 @@
     "name": "Poyotoron",
     "url": "https://github.com/Poyotoron"
   },
-  "url": "https://github.com/Poyotoron/Asset-Keshichaumon-Nator/releases/download/0.3.3/net.maaaaa.asset-keshichaumon-nator-0.3.3.zip",
-  "documentationUrl": "https://ghp.maaaaa.net/Asset-Keshichaumon-Nator/",
+  "url": "https://github.com/Poyotoron/Asset-Cleaner/releases/download/0.4.0/net.maaaaa.asset-cleaner-0.4.0.zip",
+  "documentationUrl": "https://ghp.maaaaa.net/Asset-Cleaner/",
   "vpmDependencies": {
     "com.vrchat.avatars": ">=3.7.0"
   },
-  "changelogUrl": "https://github.com/Poyotoron/Asset-Keshichaumon-Nator/blob/main/CHANGELOG.md"
+  "legacyPackages": [
+    "net.maaaaa.asset-keshichaumon-nator"
+  ],
+  "changelogUrl": "https://github.com/Poyotoron/Asset-Cleaner/blob/main/CHANGELOG.md"
 }

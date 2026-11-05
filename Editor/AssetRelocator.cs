@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     [Serializable]
     internal class RelocationEntry
@@ -49,7 +49,17 @@ namespace Maaaaa.Akn.Editor
     /// </summary>
     internal static class AssetRelocator
     {
-        internal const string ManifestFileName = ".akn-relocation.json";
+        internal const string ManifestFileName = ".asset-cleaner-relocation.json";
+        // 以前の版が作った退避フォルダも、復元・完全削除できるようにする。
+        internal const string LegacyManifestFileName = ".akn-relocation.json";
+
+        internal static string FindManifestPath(string trashRootAbs)
+        {
+            var path = Path.Combine(trashRootAbs, ManifestFileName);
+            if (File.Exists(path)) return path;
+            path = Path.Combine(trashRootAbs, LegacyManifestFileName);
+            return File.Exists(path) ? path : null;
+        }
         internal const string TrashPrefix = "_UnusedAssets_";
         private const string BackupPackageName = "backup.unitypackage";
 
@@ -79,7 +89,7 @@ namespace Maaaaa.Akn.Editor
             foldedFolderCount = 0;
             var foldersToFold = CollectFoldersThatBecomeEmpty(targets.Select(t => t.UnitPath).ToList());
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            var trashRoot = AknUtil.Normalize(Path.Combine(AknUtil.ProjectRoot, TrashPrefix + timestamp));
+            var trashRoot = AssetCleanerUtil.Normalize(Path.Combine(AssetCleanerUtil.ProjectRoot, TrashPrefix + timestamp));
             Directory.CreateDirectory(trashRoot);
 
             // 移動前（アセットがまだ Assets/ にある間）に .unitypackage を書き出す。
@@ -96,20 +106,20 @@ namespace Maaaaa.Akn.Editor
                 {
                     var t = targets[i];
                     EditorUtility.DisplayProgressBar(
-                        AknStrings.ToolName, AknStrings.ProgressRelocate + "\n" + t.UnitPath,
+                        AssetCleanerStrings.ToolName, AssetCleanerStrings.ProgressRelocate + "\n" + t.UnitPath,
                         (float)i / Math.Max(1, targets.Count));
 
-                    var absSource = AknUtil.ToAbsolute(t.UnitPath);
+                    var absSource = AssetCleanerUtil.ToAbsolute(t.UnitPath);
                     bool isDir = Directory.Exists(absSource);
                     bool isFile = File.Exists(absSource);
                     if (!isDir && !isFile)
                     {
-                        Debug.LogWarning($"[{AknStrings.ToolName}] 退避対象が存在しません: {t.UnitPath}");
+                        Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] 退避対象が存在しません: {t.UnitPath}");
                         continue;
                     }
 
                     // 退避先は元の構造をそのまま保持（trashRoot/Assets/...）
-                    var absDest = AknUtil.Normalize(Path.Combine(trashRoot, t.UnitPath));
+                    var absDest = AssetCleanerUtil.Normalize(Path.Combine(trashRoot, t.UnitPath));
                     var absDestParent = Path.GetDirectoryName(absDest);
                     if (!string.IsNullOrEmpty(absDestParent)) Directory.CreateDirectory(absDestParent);
 
@@ -130,11 +140,11 @@ namespace Maaaaa.Akn.Editor
 
                 foreach (var folderPath in foldersToFold)
                 {
-                    var absFolder = AknUtil.ToAbsolute(folderPath);
+                    var absFolder = AssetCleanerUtil.ToAbsolute(folderPath);
                     if (!Directory.Exists(absFolder) || Directory.GetFileSystemEntries(absFolder).Length != 0)
                         continue;
 
-                    var absArchivedFolder = AknUtil.Normalize(Path.Combine(trashRoot, folderPath));
+                    var absArchivedFolder = AssetCleanerUtil.Normalize(Path.Combine(trashRoot, folderPath));
                     var absArchivedParent = Path.GetDirectoryName(absArchivedFolder);
                     if (!string.IsNullOrEmpty(absArchivedParent)) Directory.CreateDirectory(absArchivedParent);
                     MoveMetaIfExists(absFolder, absArchivedFolder);
@@ -187,7 +197,7 @@ namespace Maaaaa.Akn.Editor
 
             foreach (var folderPath in orderedCandidates)
             {
-                var absFolder = AknUtil.ToAbsolute(folderPath);
+                var absFolder = AssetCleanerUtil.ToAbsolute(folderPath);
                 if (!Directory.Exists(absFolder)) continue;
 
                 var entries = Directory.GetFileSystemEntries(absFolder);
@@ -195,7 +205,7 @@ namespace Maaaaa.Akn.Editor
 
                 bool allEntriesWillMove = entries.All(entry =>
                 {
-                    var assetPath = AknUtil.ToAssetPath(entry);
+                    var assetPath = AssetCleanerUtil.ToAssetPath(entry);
                     if (Directory.Exists(entry))
                         return units.Contains(assetPath) || foldersThatBecomeEmpty.Contains(assetPath);
 
@@ -228,15 +238,15 @@ namespace Maaaaa.Akn.Editor
                 {
                     var e = normalEntries[i];
                     EditorUtility.DisplayProgressBar(
-                        AknStrings.ToolName, AknStrings.ProgressRestore + "\n" + e.originalPath,
+                        AssetCleanerStrings.ToolName, AssetCleanerStrings.ProgressRestore + "\n" + e.originalPath,
                         (float)i / Math.Max(1, manifest.entries.Count));
 
-                    var absSource = AknUtil.Normalize(Path.Combine(trashRootAbs, e.archivedRelativePath));
-                    var absDest = AknUtil.ToAbsolute(e.originalPath);
+                    var absSource = AssetCleanerUtil.Normalize(Path.Combine(trashRootAbs, e.archivedRelativePath));
+                    var absDest = AssetCleanerUtil.ToAbsolute(e.originalPath);
 
                     if (e.isDirectory ? Directory.Exists(absDest) : File.Exists(absDest))
                     {
-                        Debug.LogWarning($"[{AknStrings.ToolName}] 復元先が既に存在します。スキップ: {e.originalPath}");
+                        Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] 復元先にファイルがあるため、この項目を復元しませんでした: {e.originalPath}");
                         continue;
                     }
 
@@ -259,8 +269,8 @@ namespace Maaaaa.Akn.Editor
 
                 foreach (var e in emptyFolderEntries)
                 {
-                    var absSource = AknUtil.Normalize(Path.Combine(trashRootAbs, e.archivedRelativePath));
-                    var absDest = AknUtil.ToAbsolute(e.originalPath);
+                    var absSource = AssetCleanerUtil.Normalize(Path.Combine(trashRootAbs, e.archivedRelativePath));
+                    var absDest = AssetCleanerUtil.ToAbsolute(e.originalPath);
                     var sourceMeta = absSource + ".meta";
                     var destinationMeta = absDest + ".meta";
 
@@ -268,7 +278,7 @@ namespace Maaaaa.Akn.Editor
                     if (!File.Exists(sourceMeta)) continue;
                     if (File.Exists(destinationMeta))
                     {
-                        Debug.LogWarning($"[{AknStrings.ToolName}] {string.Format(AknStrings.RestoreMetaAlreadyExistsFormat, e.originalPath)}");
+                        Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] {string.Format(AssetCleanerStrings.RestoreMetaAlreadyExistsFormat, e.originalPath)}");
                         continue;
                     }
                     File.Move(sourceMeta, destinationMeta);
@@ -296,6 +306,8 @@ namespace Maaaaa.Akn.Editor
             foreach (var f in Directory.GetFiles(trashRootAbs, "*", SearchOption.AllDirectories))
             {
                 if (!string.Equals(Path.GetFileName(f), ManifestFileName,
+                        System.StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(Path.GetFileName(f), LegacyManifestFileName,
                         System.StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
@@ -314,7 +326,7 @@ namespace Maaaaa.Akn.Editor
             catch (System.Exception ex)
             {
                 Debug.LogWarning(
-                    $"[{AknStrings.ToolName}] 退避フォルダの削除に失敗しました（手動で削除してください）: {ex.Message}");
+                    $"[{AssetCleanerStrings.ToolName}] 退避フォルダの削除に失敗しました（手動で削除してください）: {ex.Message}");
                 return false;
             }
         }
@@ -322,7 +334,7 @@ namespace Maaaaa.Akn.Editor
         /// <summary>指定フォルダが退避フォルダ（マニフェストを持つ）か。</summary>
         public static bool HasManifest(string folderAbs)
         {
-            return File.Exists(Path.Combine(folderAbs, ManifestFileName));
+            return FindManifestPath(folderAbs) != null;
         }
 
         /// <summary>プロジェクト直下の退避フォルダを新しい順に列挙する。非破壊。</summary>
@@ -331,10 +343,10 @@ namespace Maaaaa.Akn.Editor
             var folders = new List<TrashFolderInfo>();
             try
             {
-                foreach (var path in Directory.GetDirectories(AknUtil.ProjectRoot, TrashPrefix + "*",
+                foreach (var path in Directory.GetDirectories(AssetCleanerUtil.ProjectRoot, TrashPrefix + "*",
                     SearchOption.TopDirectoryOnly))
                 {
-                    var absPath = AknUtil.Normalize(path);
+                    var absPath = AssetCleanerUtil.Normalize(path);
                     if (!HasManifest(absPath)) continue;
 
                     var manifest = ReadManifest(absPath);
@@ -346,14 +358,14 @@ namespace Maaaaa.Akn.Editor
                             ? manifest.createdAt
                             : name.Substring(TrashPrefix.Length),
                         EntryCount = manifest?.entries?.Count ?? 0,
-                        SizeBytes = AknUtil.DirectorySize(absPath),
+                        SizeBytes = AssetCleanerUtil.DirectorySize(absPath),
                         HasBackupPackage = File.Exists(Path.Combine(absPath, BackupPackageName)),
                     });
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[{AknStrings.ToolName}] {string.Format(AknStrings.RestoreTrashFoldersFindFailedFormat, ex.Message)}");
+                Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] {string.Format(AssetCleanerStrings.RestoreTrashFoldersFindFailedFormat, ex.Message)}");
             }
 
             return folders
@@ -371,18 +383,18 @@ namespace Maaaaa.Akn.Editor
             try
             {
                 EditorUtility.DisplayProgressBar(
-                    AknStrings.ToolName, AknStrings.ProgressExportPackage, 0f);
+                    AssetCleanerStrings.ToolName, AssetCleanerStrings.ProgressExportPackage, 0f);
                 var paths = targets.Select(t => t.UnitPath)
                     .Where(p => !string.IsNullOrEmpty(p)).Distinct().ToArray();
                 if (paths.Length == 0) return null;
 
-                var outPath = AknUtil.Normalize(Path.Combine(trashRoot, BackupPackageName));
+                var outPath = AssetCleanerUtil.Normalize(Path.Combine(trashRoot, BackupPackageName));
                 AssetDatabase.ExportPackage(paths, outPath, ExportPackageOptions.Recurse);
                 return outPath;
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[{AknStrings.ToolName}] .unitypackage の書き出しに失敗しました: {ex.Message}");
+                Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] .unitypackage の書き出しに失敗しました: {ex.Message}");
                 return null;
             }
             finally
@@ -399,7 +411,7 @@ namespace Maaaaa.Akn.Editor
             var manifest = ReadManifest(trashRootAbs);
             if (manifest == null) return false;
             count = manifest.entries.Count;
-            sizeBytes = AknUtil.DirectorySize(trashRootAbs);
+            sizeBytes = AssetCleanerUtil.DirectorySize(trashRootAbs);
             return true;
         }
 
@@ -412,7 +424,7 @@ namespace Maaaaa.Akn.Editor
             error = null;
             if (!HasManifest(trashRootAbs))
             {
-                error = AknStrings.PurgeNotTrashFolder;
+                error = AssetCleanerStrings.PurgeNotTrashFolder;
                 return false;
             }
             try
@@ -425,7 +437,7 @@ namespace Maaaaa.Akn.Editor
             catch (Exception ex)
             {
                 error = ex.Message;
-                Debug.LogWarning($"[{AknStrings.ToolName}] 退避フォルダの完全削除に失敗: {ex.Message}");
+                Debug.LogWarning($"[{AssetCleanerStrings.ToolName}] 退避フォルダを完全に削除できませんでした: {ex.Message}");
                 return false;
             }
         }
@@ -449,15 +461,15 @@ namespace Maaaaa.Akn.Editor
 
         private static RelocationManifest ReadManifest(string trashRootAbs)
         {
-            var path = Path.Combine(trashRootAbs, ManifestFileName);
-            if (!File.Exists(path)) return null;
+            var path = FindManifestPath(trashRootAbs);
+            if (path == null) return null;
             try
             {
                 return JsonUtility.FromJson<RelocationManifest>(File.ReadAllText(path));
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[{AknStrings.ToolName}] マニフェスト読み込み失敗: {ex.Message}");
+                Debug.LogError($"[{AssetCleanerStrings.ToolName}] 退避の記録ファイルを読み込めませんでした: {ex.Message}");
                 return null;
             }
         }

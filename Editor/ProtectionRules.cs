@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Maaaaa.Akn.Editor
+namespace Poyo.AssetCleaner.Editor
 {
     /// <summary>
     /// 保護集合。ツール・シェーダー・コード資産を退避対象から除外する。
@@ -51,7 +51,7 @@ namespace Maaaaa.Akn.Editor
         /// <summary>ファイル単位で常に保護される拡張子か。</summary>
         public static bool IsAlwaysProtectedFile(string assetPath)
         {
-            return AlwaysProtectedExtensions.Contains(AknUtil.Ext(assetPath));
+            return AlwaysProtectedExtensions.Contains(AssetCleanerUtil.Ext(assetPath));
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Maaaaa.Akn.Editor
             if (excludedImplicitRoots != null &&
                 unitFiles.Any(file => excludedImplicitRoots.Contains(file)))
             {
-                reason = AknStrings.ReasonExcludedImplicitRoot;
+                reason = AssetCleanerStrings.ReasonExcludedImplicitRoot;
                 return true;
             }
 
@@ -89,14 +89,15 @@ namespace Maaaaa.Akn.Editor
             out string reason)
         {
             // 本ツール自身の新旧設定フォルダは常に保護（自己言及の回避）
-            if (unitPath == AknSettings.SettingsFolder ||
-                unitPath.StartsWith(AknSettings.SettingsFolder + "/") ||
-                unitPath == AknSettings.LegacySettingsFolder ||
-                unitPath.StartsWith(AknSettings.LegacySettingsFolder + "/") ||
+            if (unitPath == AssetCleanerSettings.SettingsFolder ||
+                unitPath.StartsWith(AssetCleanerSettings.SettingsFolder + "/") ||
+                AssetCleanerSettings.LegacySettingsFolders.Any(folder =>
+                    unitPath == folder || unitPath.StartsWith(folder + "/")) ||
                 containedFiles.Any(file =>
-                    file == AknSettings.SettingsPath || file == AknSettings.LegacySettingsPath))
+                    file == AssetCleanerSettings.SettingsPath ||
+                    AssetCleanerSettings.LegacySettingsFolders.Any(folder => file == folder + "/Settings.asset")))
             {
-                reason = "本ツールの設定フォルダ";
+                reason = "このツールの設定フォルダ";
                 return true;
             }
 
@@ -109,7 +110,7 @@ namespace Maaaaa.Akn.Editor
                     if (GlobMatcher.IsMatch(unitPath, glob) ||
                         containedFiles.Any(f => GlobMatcher.IsMatch(f, glob)))
                     {
-                        reason = $"ホワイトリスト: {glob}";
+                        reason = $"保護するパス: {glob}";
                         return true;
                     }
                 }
@@ -121,7 +122,7 @@ namespace Maaaaa.Akn.Editor
             {
                 if (lowerUnit.Contains(name.ToLowerInvariant()))
                 {
-                    reason = $"既知ツール名／慣例フォルダ: {name}";
+                    reason = $"名前で保護: {name}";
                     return true;
                 }
             }
@@ -129,16 +130,16 @@ namespace Maaaaa.Akn.Editor
             // 構造ヒューリスティック（コード・シェーダー・パッケージを含む）
             foreach (var file in containedFiles)
             {
-                var ext = AknUtil.Ext(file);
+                var ext = AssetCleanerUtil.Ext(file);
                 if (StructureProtectExtensions.Contains(ext))
                 {
-                    reason = $"コード／シェーダー資産を含む（{ext}）";
+                    reason = $"コードやシェーダーを含む（{ext}）";
                     return true;
                 }
                 var fileName = System.IO.Path.GetFileName(file).ToLowerInvariant();
                 if (StructureProtectFileNames.Contains(fileName) || fileName.EndsWith(".vpm.json"))
                 {
-                    reason = $"パッケージ定義を含む（{fileName}）";
+                    reason = $"パッケージの定義ファイルを含む（{fileName}）";
                     return true;
                 }
             }
@@ -146,7 +147,7 @@ namespace Maaaaa.Akn.Editor
             // Editor/ ディレクトリを持つ（エディタ拡張の慣例配置）
             if (containedFiles.Any(f => f.Contains("/Editor/") || f.EndsWith("/Editor")))
             {
-                reason = "Editor/ ディレクトリを持つ";
+                reason = "Editor/ フォルダを含む";
                 return true;
             }
 
