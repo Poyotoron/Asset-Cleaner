@@ -21,3 +21,13 @@
 
 /* 注記ブロックの色は種類ごとの既定色（警告=橙、危険=赤 …）をそのまま使う。
    基調色で塗り潰すと、警告と補足の区別がつかなくなるため。 */
+
+/* スクリーンショット。暗いテーマの画面がページの背景に溶け込まないよう、細い枠を付ける。 */
+.md-typeset img.shot {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.8em 0;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+}

@@ -1,6 +1,6 @@
-site_name: いらないアセット消しちゃうもんネーター
-site_url: https://ghp.maaaaa.net/Asset-Keshichaumon-Nator/
-repo_url: https://github.com/Poyotoron/Asset-Keshichaumon-Nator
+site_name: "Poyo's Asset Cleaner"
+site_url: https://ghp.maaaaa.net/Asset-Cleaner/
+repo_url: https://github.com/Poyotoron/Asset-Cleaner
 site_dir: site
 
 theme:
@@ -48,7 +48,7 @@ extra_css:
   - stylesheets/extra.css
 
 extra:
-  akn_version: !ENV [AKN_VERSION, dev]
+  package_version: !ENV [PACKAGE_VERSION, dev]
 
 nav:
   - はじめに: index.md
@@ -56,8 +56,8 @@ nav:
   - クイックスタート: quickstart.md
   - ルートの設定: roots.md
   - スキャンと退避: scan.md
-  - 保護のしくみ: protection.md
-  - 重複アセットの検出: duplicates.md
+  - 保護: protection.md
+  - 重複の検出: duplicates.md
   - キャッシュ掃除: cache.md
   - 困ったときは: troubleshooting.md
   - 更新履歴: changelog.md

@@ -48,7 +48,7 @@ jobs:
               version = json.load(package_file)["version"]
 
           with Path(os.environ["GITHUB_ENV"]).open("a", encoding="utf-8") as environment_file:
-              environment_file.write(f"AKN_VERSION={version}\n")
+              environment_file.write(f"PACKAGE_VERSION={version}\n")
           PY
 
       - name: Configure GitHub Pages
